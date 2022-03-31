@@ -1,1 +1,1 @@
-Current directory path
+Shell basic commands
