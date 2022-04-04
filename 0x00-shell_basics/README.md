@@ -5,7 +5,7 @@
 4-listmorefiles: display current directory contents, including hidden files
 5-listfilesdigitonly: display long format, hidden, and user/group IDs
 6-firstdirectory: creates a holberton directory in /tmp/
-7-movethatfile: move the file betty from /tmp/ to /tmp/holberton
+7-movethatfile: move the file betty from /tmp/ to /tmp/school
 8-firstdelete: delete betty from /tmp/holberton
 9-firstdirdeletion: delete the directory holberton that is in the /tmp directory
 10-back: changes the working directory to the previous one
@@ -17,4 +17,4 @@
 16-clean_emacs: delete all the file in the cwd ending with ~
 17-tree: create a directory tree in one line
 18-commas: custom ls with sort
-holberton.mgc: magic file holberton.mgc that can be used with the command file to detect Holberton data files
+19-school.mgc: magic file holberton.mgc that can be used with the command file to detect school data files
