@@ -3,3 +3,4 @@
 - Shell basics 
 - Shell permissions
 - Shell Redirections
+- Shell variable/ expansions
