@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#dispay Best school 10 times using a while loop
+
+
+COUNT=0
+while [ $COUNT -lt 10 ]
+do
+	echo "Best School"
+	COUNT=$((COUNT + 1))
+done
