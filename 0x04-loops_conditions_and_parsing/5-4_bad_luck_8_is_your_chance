@@ -4,7 +4,7 @@
 #   "good luck" for the 8th iteration
 #   "Best School" for all other iterations
 
-COUNT=1
+COUNT=0
 
 while [ $COUNT -lt 10 ]
 do
