@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#creates an RSA key pair, name of the private key is school.
+#The key passphrase is betty.
+ssh-keygen -b 4096 -N betty -f school
