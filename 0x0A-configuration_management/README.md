@@ -28,7 +28,7 @@ puppet-lint -v
 
 # If you get an error saying puppet command not found, source the path
 source /etc/profile.d/puppet-agent.sh
-
+```
 ## Tasks :page_with_curl:
 
 * **0. Create a file**
