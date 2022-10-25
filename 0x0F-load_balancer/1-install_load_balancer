@@ -1,66 +1,65 @@
 #!/usr/bin/env bash
-# installing the ubuntu load balancer HAProxy version 2.6-stable(LTS)
+# install load balancer
 
-# shell colors
-green='\e[1;32m'
-brown='\e[0;33m'
+# colors
 blue='\e[1;34m'
+brown='\e[0;33m'
+green='\e[1;32m'
 reset='\033[0m'
 
-echo -e "${blue} starting....${reset}\n"
+echo -e "${blue}Updating and doing some minor checks...${reset}\n"
 
-function install()
-{
-	command -v "$1" $> /dev/null
+function install() {
+	command -v "$1" &> /dev/null
 
 	#shellcheck disable=SC2181
-	if [ $? -ne 0 ];
-	then
+	if [ $? -ne 0 ]; then
 		echo -e "	Installing: ${brown}$1${reset}\n"
-		sudo apt-get install --no-install-recommends software-properties-common -y -qq && \
-		sudo add-apt-repository ppa:vbernat/haproxy-2.6 -y && \
 		sudo apt-get update -y -qq && \
-		sudo apt-get install -y -qq "$1"
+			sudo apt-get install -y "$1" -qq
 		echo -e "\n"
 	else
-		echo -e "${green}$1 is already installed.${reset}\n"
+		echo -e "	${green}${1} is already installed.${reset}\n"
 	fi
 }
 
-# installing haproxy version 2.6.*
-install haproxy=2.6.\*
+sudo apt-get install --no-install-recommends software-properties-common -y
 
-echo -e "\n${blue}        Setting Up.${reset}\n"
+sudo add-apt-repository ppa:vbernat/haproxy-2.6
 
-# backup the default server configuration file
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/heproxy.cfg.default_backup
+install haproxy=2.6.\*   #install haproxy
 
-server_configuration=\
+echo -e "\n${blue}Setting up some minor stuff.${reset}\n"
+
+# backup default server config file
+sudo cp /etc/haproxy/haproxy.cfg haproxy_default.backup
+
+server_config=\
 "
 defaults
-	mode http
-	timeout client 15s
-	timeout connect 10s
-	timeout server 15s
-	timeout http-request 10s
+  mode http
+  timeout client 15s
+  timeout connect 10s
+  timeout server 15s
+  timeout http-request 10s
 
-frontend haproxy_balancer
-	 bind *:80
-	 default_backend webservers-backend
+frontend myairbnb.tech-frontend
+    bind *:80
+    default_backend myairbnb.tech-backend
 
-backend webservers-backend
-	balance roundrobin
-	server 47185-web-01 3.235.64.111:80 check
-	server 47185-web-02 52.90.23.35:80 check
+backend myairbnb.tech-backend
+    balance roundrobin
+    server 47185-web-01 3.235.64.111:80 check
+    server 47185-web-02 52.90.23.35:80 check
 "
+
 # shellcheck disable=SC2154
-echo "$server_configuration" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
+echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
 
-# enable HAproxy to be started by the init script
-echo "ENABLE=1" | sudo dd status=none of=/etc/default/haproxy
+# enable haproxy to be started by init script
+echo "ENABLED=1" | sudo dd status=none of=/etc/default/haproxy
 
-if [ "$(pgrep -c haproxy)" -le 0 ];
-then
+if [ "$(pgrep -c haproxy)" -le 0 ]; then
 	sudo service haproxy start
 else
 	sudo service haproxy restart
