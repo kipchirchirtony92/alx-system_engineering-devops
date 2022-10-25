@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# Bash script that install and configure HAproxy
+# Install and configure HAProxy load balancer to 297-lb-01
+# sends traffic to web-01 and web-02
 
-sudo apt-get -y update
+
+CONFGF="\\\nlisten appname 0.0.0.0:80\n\tmode http\n\tbalance roundrobin\n\toption httpclose\n\toption forwardfor\n\tserver 47185-web-01 3.235.64.111:80 check\n\tserver 47185-web-02 52.90.23.35:80 check\n"
+
+sudo apt-get update
 sudo apt-get install --no-install-recommends software-properties-common -y
 sudo add-apt-repository ppa:vbernat/haproxy-2.6
+sudo apt-get -y install nginx
+#version 2.6 and above
+sudo apt-get install -y haproxy=2.6\*
+#enable HAproxy can be managed via an init script
+sudo sed -i "s/ENABLED=0/ENABLED=1/" /etc/default/haproxy
+# include roundrobin and two servers
+sudo sed -i "\$a $CONFGF" /etc/haproxy/haproxy.cfg
 
-sudo apt-get -y install haproxy=2.6.\*
-
-str_haproxy="frontend http\n\tbind *:80\n\tmode http\n\tdefault_backend web-backend\n\nbackend web-backend\n\tbalance roundrobin\n\tserver 47185-web-01 3.235.64.111:80 check\n\tserver 47185-web-02 52.90.23.35:80 check"
-echo -e "$str_haproxy" >> /etc/haproxy/haproxy.cfg
-
-sudo service haproxy restart
-
+sudo service haproxy start
