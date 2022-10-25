@@ -1,19 +1,71 @@
 #!/usr/bin/env bash
-# Install and configure HAProxy load balancer to 297-lb-01
-# sends traffic to web-01 and web-02
+# installing the haproxy load balancer 2.6.\*
+
+# shell-colors
+blue='\e[1;34m'
+brown='\e[0;33m'
+green='\e[1;32m'
+reset='\033[0m'
 
 
-CONFGF="\\\nlisten appname 0.0.0.0:80\n\tmode http\n\tbalance roundrobin\n\toption httpclose\n\toption forwardfor\n\tserver 47185-web-01 3.235.64.111:80 check\n\tserver 47185-web-02 52.90.23.35:80 check\n"
+# installing updates and upgrades 1st
+sudo apt-get -y update -qq
 
-sudo apt-get update
-sudo apt-get install --no-install-recommends software-properties-common -y
-sudo add-apt-repository ppa:vbernat/haproxy-2.6
-sudo apt-get -y install nginx
-#version 2.6 and above
-sudo apt-get install -y haproxy=2.6\*
-#enable HAproxy can be managed via an init script
-sudo sed -i "s/ENABLED=0/ENABLED=1/" /etc/default/haproxy
-# include roundrobin and two servers
-sudo sed -i "\$a $CONFGF" /etc/haproxy/haproxy.cfg
+# adding a PPA repo
+sudo add-apt-repository ppa:vbernat/haproxy-2.6 -y
 
-sudo service haproxy start
+function install()
+{
+        command -v "$1" &> /dev/null
+    
+	# shellcheck disable=SC2181
+	if [ $? -ne 0 ];
+	then
+		echo -e "  Installing: ${brown}$1${reset}\n"
+		sudo apt-get install "$1" -y -qq
+
+		echo -e "\n"
+	else
+		echo -e "${green}${1} is already installed.${reset}\n"
+	fi
+}
+
+install haproxy=2.6.\* #install haproxy
+
+# backing up the default haproxy.cfg file to haproxy_default.backup
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy_default.backup 
+
+# our haproxy.cfg file configurations
+server_config=\
+"
+defaults
+	mode http
+	timeout client 30s
+	timeout connect 10s
+	timeout server 30s
+	timeout http-request 10s
+	maxconn 3000
+frontend myairbnb.tech
+	bind *:80
+	default_backend web_servers-backend
+backend web_servers-backend
+	balance roundrobin
+	server 47185-web-01 3.235.64.111:80 check
+	server 47185-web-02 52.90.23.35:80 check
+"
+
+echo -e "\n${blue}Writing to the haproxy file...${reset}\n"
+# writing to the haproxy.cfg file
+# shellcheck disable=SC2154
+echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
+
+echo -e "\n${blue}Enable haproxy to start from init file${reset}\n"
+# enable haproxy to be started by the init script
+echo "ENABLED=1" | sudo dd status=none of=/etc/default/haproxy
+
+if [ "$(pgrep -c haproxy)" -le 0 ];
+then
+	sudo service haproxy start
+else
+	sudo service haproxy restart
+fi
