@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/python3
 """
    Script to fetch and display an employee's TODO list progress using a RST API
 """
