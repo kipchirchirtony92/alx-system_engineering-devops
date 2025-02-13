@@ -2,10 +2,10 @@
 """
    Script to fetch and display an employee's TODO list progress using a RST API
 """
-import requests
-import sys
 import csv
+import requests
 import json
+import sys
 
 
 def get_employee_todo_progress(employee_id):
@@ -21,7 +21,7 @@ def get_employee_todo_progress(employee_id):
         return
     print(response)
     employee_data = response.json()
-    employee_name = employee_data.get("name")
+    employee_name = employee_data.get("name").strp()
 
     """Fetch the todo list of the employees"""
     todo_url = "{}/todos".format(base_url)
