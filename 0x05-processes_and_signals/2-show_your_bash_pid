@@ -1,0 +1,5 @@
+#! /bin/bash
+# This script displays lines containing 'bash', showing its PID
+# shellcheck disable=SC2009
+
+ps auxf | grep "[b]ash"
