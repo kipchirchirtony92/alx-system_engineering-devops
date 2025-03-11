@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # This script displays lines containing 'bash', showing its PID
 # shellcheck disable=SC2009
 
