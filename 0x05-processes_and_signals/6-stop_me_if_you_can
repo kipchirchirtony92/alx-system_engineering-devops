@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# Find the PID of the running 4-to_infinity_and_beyond process
+# Find the path of the script
 
-PID=$(pgrep -f "4-to_infinity_and_beyond")
+SCRIPT_PATH=$(command -v 4-to_infinity_and_beyond)
 
-# Check if the process is running
-if [ -n "$PID" ]; then
-    echo "0" > /proc/"$PID"/oom_score_adj 2>/dev/null
+# Overwrite the script to stop execution
+if [ -n "$SCRIPT_PATH" ]; then
+    true > "$SCRIPT_PATH"
 fi
-
