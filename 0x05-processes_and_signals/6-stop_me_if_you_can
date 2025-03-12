@@ -5,8 +5,6 @@ PID=$(pgrep -f "4-to_infinity_and_beyond")
 
 # Check if the process is running
 if [ -n "$PID" ]; then
-    echo "0" > /proc/"$PID"/oom_score_adj 2>/dev/null && echo "Terminated."
-else
-    echo "No running process:4-to_infinity_and_beyond."
+    echo "0" > /proc/"$PID"/oom_score_adj 2>/dev/null
 fi
 
