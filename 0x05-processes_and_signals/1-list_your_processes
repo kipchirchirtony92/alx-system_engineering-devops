@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 #prints the running process during execution in readble format
 
 ps auxf
