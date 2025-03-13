@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
 # Find the path of the script
 
-SCRIPT_PATH=$(command -v 4-to_infinity_and_beyond)
-
-# Overwrite the script to stop execution
-if [ -n "$SCRIPT_PATH" ]; then
-    true > "$SCRIPT_PATH"
-fi
+pkill -f "4-to_infinity_and_beyond" > /dev/null 2>&1
