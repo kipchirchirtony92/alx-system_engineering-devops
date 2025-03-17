@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# 101-manage_my_process run by the process;  starts, stops, and restarts manage_my_process
+
+# Check if an argument is passed
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+fi
+
+# Define the PID file location
+PID_FILE="/var/run/my_process.pid"
+
+# Function to start the process
+start_process() {
+    # Start manage_my_process in the background
+    /path/to/manage_my_process &
+    # Save the PID to the PID file
+    echo $! > "$PID_FILE"
+    echo "manage_my_process started"
+}
+
+# Function to stop the process
+stop_process() {
+    # Check if the PID file exists
+    if [ -f "$PID_FILE" ]; then
+        # Kill the process using the PID
+        kill "$(cat "$PID_FILE")"
+        # Remove the PID file
+        rm "$PID_FILE"
+        echo "manage_my_process stopped"
+    else
+        echo "PID file not found. Is the process running?"
+    fi
+}
+
+# Function to restart the process
+restart_process() {
+    stop_process
+    start_process
+    echo "manage_my_process restarted"
+}
+
+# Handle the argument
+case "$1" in
+    start)
+        start_process
+        ;;
+    stop)
+        stop_process
+        ;;
+    restart)
+        restart_process
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
