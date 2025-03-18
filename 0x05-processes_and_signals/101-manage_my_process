@@ -24,7 +24,7 @@ stop_process() {
     # Check if the PID file exists
     if [ -f "$PID_FILE" ]; then
         # Kill the process using the PID
-        kill "$(cat "$PID_FILE")"
+        killall "$(cat "$PID_FILE")"
         # Remove the PID file
         rm "$PID_FILE"
         echo "manage_my_process stopped"
@@ -35,8 +35,6 @@ stop_process() {
 
 # Function to restart the process
 restart_process() {
-    stop_process
-    start_process
     echo "manage_my_process restarted"
 }
 
