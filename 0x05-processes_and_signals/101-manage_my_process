@@ -13,7 +13,7 @@ PID_FILE="/var/run/my_process.pid"
 # Function to start the process
 start_process() {
     # Start manage_my_process in the background
-    /path/to/manage_my_process &
+    ./manage_my_process &
     # Save the PID to the PID file
     echo $! > "$PID_FILE"
     echo "manage_my_process started"
@@ -24,7 +24,7 @@ stop_process() {
     # Check if the PID file exists
     if [ -f "$PID_FILE" ]; then
         # Kill the process using the PID
-        killall "$(cat "$PID_FILE")"
+        kill "$(cat "$PID_FILE")"
         # Remove the PID file
         rm "$PID_FILE"
         echo "manage_my_process stopped"
@@ -35,6 +35,8 @@ stop_process() {
 
 # Function to restart the process
 restart_process() {
+    stop_process
+    start_process
     echo "manage_my_process restarted"
 }
 
