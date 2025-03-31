@@ -1,103 +1,57 @@
 #!/usr/bin/python3
-"""
-   Script to fetch and display an employee's TODO list progress using a RST API
-"""
-import csv
+"""Access employee TODO list progress via API and display it."""
 import requests
-import json
 import sys
 
 
 def get_employee_todo_progress(employee_id):
+    """
+    Fetch and display employee TODO list progress.
+
+    Args:
+        employee_id (int): The ID of the employee.
+
+    Returns:
+        None: Prints the employee's TODO progress to stdout.
+    """
+    # Base URL for the API
     base_url = "https://jsonplaceholder.typicode.com"
 
-    """Fetch employee details"""
-    employee_url = "{}/users/{}".format(base_url, employee_id)
+    # Fetch employee details
+    user_url = f"{base_url}/users/{employee_id}"
+    user_response = requests.get(user_url)
+    user_data = user_response.json()
+    employee_name = user_data.get("name")
 
-    response = requests.get(employee_url)
-    if response.status_code != 200:
-        print("Error: Unable to fetch employee data of ID {}"
-              .format(employee_id))
-        return
-    print(response)
-    employee_data = response.json()
-    employee_name = employee_data.get("name").strp()
+    # Fetch employee's TODO list
+    todos_url = f"{base_url}/users/{employee_id}/todos"
+    todos_response = requests.get(todos_url)
+    todos_data = todos_response.json()
 
-    """Fetch the todo list of the employees"""
-    todo_url = "{}/todos".format(base_url)
-    response = requests.get(todo_url)
-    if response.status_code != 200:
-        print("Error: unable to fetch the TODO list for the employee ID: {}"
-              .format(employee_id))
-        return
-    todo_data = response.json()
+    # Calculate progress
+    total_tasks = len(todos_data)
+    done_tasks = sum(1 for task in todos_data if task.get("completed"))
 
-    """Filter the completed tasks"""
-    completed_tasks = [task for task in todo_data if task.get("completed")]
+    # Display progress
+    print(
+        f"Employee {employee_name}"
+        "is done with tasks({done_tasks}/{total_tasks}):"
+    )
 
-    """Direct the response result to the starndard output"""
-    total_tasks = len(todo_data)
-    done_tasks = len(completed_tasks)
-    print("Employee {} is done with tasks({}/{}):"
-          .format(employee_name, done_tasks, total_tasks))
-    for task in completed_tasks:
-        print("\t {}".format(task.get('title')))
-    """Prepare the todo tasks"""
-    csv_data = []
-    for task in todo_data:
-        csv_data.append([employee_id,
-                         employee_data.get("username").strip(),
-                         str(task["completed"]), task["title"]])
-
-    """Export to csv"""
-    csv_filename = "{}.csv".format(employee_id)
-    with open(csv_filename, mode="w", newline='') as csv_file:
-        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
-        for task in todo_data:
-            writer.writerow(["USER_ID",
-                             "USERNAME",
-                             "TASK_COMPLETED_STATUS",
-                             "TASK_TITLE"])
-            writer.writerows(csv_data)
-    print("Data is exported to {}".format(csv_filename))
-    """Export to JSON"""
-    json_data = {employee_id: [{"task": task["title"],
-                                "completed": task["completed"],
-                                "username": employee_data.get("username")
-                                .strip()}
-                               for task in todo_data]}
-    """write to JSON file"""
-    json_filename = "{}.json".format(employee_id)
-    with open(json_filename, mode="w") as file:
-        json.dump(json_data, file, indent=4)
-    print("Data exported to{}".format(json_filename))
-    """Organize the data"""
-    all_todos = {}
-    if employee_data and isinstance(employee_data, list):
-        user_dict = {employee["id"]: str(employee["username"].strip())
-                     for employee in employee_data}
-        print(user_dict)
-    for task in todo_data:
-        user_id = task["userId"]
-        if user_id not in all_todos:
-            all_todos[user_id] = []
-            all_todos[user_id].append({"username": user_dict[user_id],
-                                       "task": task["title"],
-                                       "completed": task["completed"]})
-    """Employee all employess task to Json"""
-    json_filename = "todo_all_employees.json"
-    with open(json_filename, mode="w") as Json_file:
-        json.dump(all_todos, json_file)
-    print("Data exporrted to {}".format(json_filename))
+    # Display completed tasks
+    for task in todos_data:
+        if task.get("completed"):
+            print(f"\t {task.get('title')}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: Python3 O-gather_data_from_an_API.py <employee_id>")
+        print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
         sys.exit(1)
+
     try:
         employee_id = int(sys.argv[1])
         get_employee_todo_progress(employee_id)
     except ValueError:
-        print("Error: Employee ID must be an integer")
+        print("Employee ID must be an integer")
         sys.exit(1)
